@@ -1,0 +1,55 @@
+APP_NAME=absher
+APP_ENV=local #live or debug
+APP_KEY=base64:pfmu+rg8Il0eKRJulhIEfEDOUIqkx5P5R2sMpIFFFco=
+APP_DEBUG=true #false if production mode
+APP_INSTALL=true
+APP_LOG_LEVEL=debug
+APP_MODE=debug
+
+APP_URL=http://127.0.0.1
+# APP_URL=https://foodie.junaidali.tk
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=foodie
+DB_USERNAME=root
+DB_PASSWORD=
+
+
+
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+QUEUE_DRIVER=sync
+
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+
+MAIL_DRIVER=smtp
+MAIL_HOST=junaidali.tk
+MAIL_PORT=465
+MAIL_USERNAME=foodie@junaidali.tk
+MAIL_PASSWORD=gTLoQa53X{Pu
+MAIL_ENCRYPTION=ssl
+MAIL_FROM_ADDRESS=foodie@junaidali.tk
+MAIL_FROM_NAME="Foodie Moodie"
+
+PUSHER_APP_ID=
+PUSHER_APP_KEY=
+PUSHER_APP_SECRET=
+PUSHER_APP_CLUSTER=mt1
+
+PURCHASE_CODE=b91fb167-64a9-484a-ad48-eed6247f827d
+BUYER_USERNAME=aboodcohen
+SOFTWARE_ID=MzM1NzE3NTA=
+
+FIREBASE_CREDENTIALS="foodie-moodie-firebase.json"
+
+
+FIREBASE_DATABASE_URL="https://foodie-moodie-196a1-default-rtdb.firebaseio.com/"
+
+SOFTWARE_VERSION=5.8.1
+
