@@ -131,8 +131,8 @@ class ConfigController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
         $point = new Point($request->lat, $request->lng);
-        $zones = Zone::contains('coordinates', $point)->with('currenci')->latest()
-        ->get();
+        $zones = Zone::contains('coordinates', $point)->with('currenci')->latest()->get();
+
         if (count($zones) < 1) {
             return _response(0,translate('messages.service_not_available_in_this_area'), [
                 'errors' => [
@@ -143,13 +143,13 @@ class ConfigController extends Controller
         $data = array_filter($zones->toArray(), function ($zone) {
             if ($zone['status'] == 1) {
                 return $zone;
-                // return _response(1,'success',$zone, 200);
+                // return _response(1,'success from data',$zone, 200);
             }
         });
 
         if (count($data) > 0) {
             $data = ['zone_id' => json_encode(array_column($data, 'id')), 'zone_data'=>array_values($data)];
-            return _response(1,'success',$data,200);
+            return _response(1,'success', $data, 200);
             // return response($data)->json(, 200);
         }
         return _response(0,translate('messages.we_are_temporarily_unavailable_in_this_area'),[

@@ -124,7 +124,10 @@
                         // console.log(data.response.orders);
                         var current_orders = '';
                         $.each(data.response.orders, function(index, order) {
+                            console.log('--'+order.id);
 
+                        
+                          
                             current_orders += `
                           <tr>
                                 <td>${order.id}</td>
@@ -148,16 +151,17 @@
                                 </td>
                                 <td> ${formatCreatedAt(order.created_at)}</td>
                                 <td> ${capitalizeFirstLetter(order.order_status)}</td>
-                                <td><button class="btn text-success" data-order-id="${order.id}" ><i class="fa-regular fa-eye"></i></button></td>
-
-                            </tr>`;
-                        });
+                                <td><a class="btn text-success" href="{{ url('user/order/detail/')}}/${order.id}" ><i class="fa-regular fa-eye"></i></a></td>
+                                
+                                </tr>`;
+                            });
                         $('#CurrentOrders').empty();
                         $('#CurrentOrders').append(current_orders);
                     },
                     error: function(error) {
                         console.error(error);
                     }
+                    // <td><button class="btn text-success" data-order-id="${order.id}" ><i class="fa-regular fa-eye"></i></button></td>
                 });
 
             }
@@ -226,6 +230,7 @@
 
                 // console.log('Clicked ID:', order_id);
             });
+
             function getOrderDetails(order_id) {
                 $.ajax({
                     type: "get",
@@ -322,14 +327,14 @@
                                                 <li class="total">Subtotal<span id="sub_total">$0</span></li>
                                             </ul> --}}
                                             `;
-                        if (response.response.order.order_status == 'pending') {
-                            order_detail += `
-                                                <div class="btn_1_mobile">
-                                                    <button href="#" class="btn_1 gradient full-width mb-5" data-order-id-2="${response.response.order.id}" id="cancel_order_btn">Cancel Order</button>
-                                                </div>`;
-                        }
-                        if (response.response.order.order_status == 'canceled') {
-                            order_detail += `
+                                                if (response.response.order.order_status == 'pending') {
+                                                    order_detail += `
+                                                        <div class="btn_1_mobile">
+                                                            <button href="#" class="btn_1 gradient full-width mb-5" data-order-id-2="${response.response.order.id}" id="cancel_order_btn">Cancel Order</button>
+                                                        </div>`;
+                                                }
+                                        if (response.response.order.order_status == 'canceled') {
+                                            order_detail += `
                                                 <div class="btn_1_mobile">
                                                     <button  class="btn_1 gradient full-width mb-1" data-bs-toggle="modal" data-bs-target="#staticBackdrop" >Report Order</button>
                                                 </div>
@@ -380,7 +385,7 @@
                         console.error(erros);
                     }
                 });
-                }
+            }
 
             $(".go_back_btn").click(function() {
                 currentOrderFunc();

@@ -6,9 +6,12 @@ use App\Http\Controllers\Api\V1\OrderController as ApiOrderController;
 use App\Http\Controllers\Auth\LoginController;
 //user controllers
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RestaurantController as RestaurantControllerInHttp;
+use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserRestaurentController;
 use App\Http\Controllers\Vendor\AddOnController;
 use App\Http\Controllers\Vendor\FoodController;
@@ -74,6 +77,8 @@ Route::post('business-update-mobile', [RestaurantController::class, 'business_up
 
 //start Reviews
 Route::get('reviews-mobile', [ReviewController::class, 'reviews_mobile'])->name('reviews-mobile');
+
+
 //end reviews
 /*Vendor Web Views*/
 
@@ -238,7 +243,8 @@ Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
         Route::get('contact', [HomeController::class, 'contact'])->name('contact');
         Route::get('order', [OrderController::class, 'index'])->name('order');
         Route::get('running-orders', [OrderController::class, 'running_orders'])->name('home.running_orders');
-        Route::get('order-detail', [OrderController::class, 'order_detail'])->name('home.running_orders');
+        // Route::get('order-detail', [OrderController::class, 'order_detail'])->name('home.running_orders');
+        Route::get('order/detail/{id}', [OrderController::class, 'details'])->name('home.order.details');
         Route::get('confirm-order', [OrderController::class, 'confirm_order'])->name('confirm-order');
         Route::get('blog', [BlogController::class, 'blog'])->name('blog');
         Route::get('help', [HomeController::class, 'help'])->name('help');
@@ -246,11 +252,19 @@ Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
         Route::get('submit-raustaurent', [UserRestaurentController::class, 'submit_raustaurent'])->name('submit-raustaurent');
         Route::get('detail-raustaurent', [UserRestaurentController::class, 'detail_raustaurent'])->name('detail-raustaurent');
         Route::get('restaurants', [UserRestaurentController::class, 'index'])->name('home.restaurants');
+        Route::get('category-wise/restaurants/{id}', [UserRestaurentController::class, 'category_wise'])->name('home.restaurants.category_wise');
         Route::get('restaurent_details/{id}', [UserRestaurentController::class, 'restaurent_details'])->name('restaurent_details');
-        // Route::group(['middleware'=>'auth'],function(){
 
-        // });
+        Route::group(['middleware'=>'auth'],function(){
+            Route::get('generate-invoice/{id}', 'OrderController@generate_invoice')->name('generate.invoice');
+            Route::post('reviews', [ReviewController::class, 'store'])->name('reviews');
+            Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+
+        });
     });
+    Route::post('session-store',[SessionController::class,'store']);
+    Route::get('session-get',[SessionController::class,'index']);
+    Route::get('coupon',[CouponController::class,'index'])->name('coupon');
 });
 //
 

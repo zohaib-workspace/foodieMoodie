@@ -2327,4 +2327,74 @@ the restaurant web panel/ app won t get the access for managing foods.
   'Business_Settings_Updated' => 'Business Settings Updated',
   'Withdraw request has been sent.' => 'Withdraw request has been sent.',
   'not want because I deal with other' => 'not want because I deal with other',
+  'digital payment' => 'digital payment',
+  '
+                Enter order verification code ' => '
+                Enter order verification code ',
+  '
+                messages.submit ' => '
+                messages.submit ',
+  '
+                messages.Are you sure ? ' => '
+                messages.Are you sure   ',
+  '
+                messages.Cancel ' => '
+                messages.Cancel ',
+  '
+                Enter Processing time in minutes ' => '
+                Enter Processing time in minutes ',
+  '
+                messages.No ' => '
+                messages.No ',
+  '
+                messages.Yes ' => '
+                messages.Yes ',
+  '
+                     Enter order verification code ' => '
+                     Enter order verification code ',
+  '
+                     messages.submit ' => '
+                     messages.submit ',
+  '
+                     messages.Are you sure ? ' => '
+                     messages.Are you sure   ',
+  '
+                     messages.Cancel ' => '
+                     messages.Cancel ',
+  '
+                     Enter Processing time in minutes ' => '
+                     Enter Processing time in minutes ',
+  '
+                     messages.No ' => '
+                     messages.No ',
+  '
+                     messages.Yes ' => '
+                     messages.Yes ',
+  '
+            Only available when order is out
+            for delivery!' => '
+            Only available when order is out
+            for delivery!',
+  'Delivery Man' => 'Delivery Man',
+  '
+                                Only available when order is out
+                                for delivery!' => '
+                                Only available when order is out
+                                for delivery!',
+  '
+                                            Only available when order is out
+                                            for delivery!' => '
+                                            Only available when order is out
+                                            for delivery!',
+  '
+                Only available when order is out
+                for delivery!' => '
+                Only available when order is out
+                for delivery!',
+  '
+                            Only available when order is out
+                            for delivery!' => '
+                            Only available when order is out
+                            for delivery!',
+  'assigned' => 'assigned',
 );

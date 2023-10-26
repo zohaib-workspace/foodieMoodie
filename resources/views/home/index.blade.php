@@ -15,16 +15,18 @@
                             <h1>Delivery or Takeaway Food</h1>
                             <p>The best restaurants at the best price</p>
                             <form>
-                                <div class="row g-0 custom-search-input">
+                                <div class="row g-0 custom-search-input ">
                                     <div class="col-lg-10">
                                         <div class="form-group">
-                                            <input class="form-control no_border_r" type="text" id="autocomplete"
-                                                placeholder="Address, neighborhood...">
+                                            <input class="form-control no_border_r" type="text" id="autocomplete"    placeholder="Address, neighborhood...">
                                         </div>
                                     </div>
                                     <div class="col-lg-2">
-                                        <button class="btn_1 gradient" type="submit">Search</button>
+                                        {{-- <button class="btn_1 gradient" type="submit">Search</button> --}}
+                                        <a class="btn_1 gradient py-lg-3"  href="{{route('user.home.restaurants')}}" >Search</a>
+
                                     </div>
+                                    
                                 </div>
                                 <!-- /row -->
                                 <div class="search_trends">
@@ -60,7 +62,7 @@
         					?>
                 {{-- onclick="redirectToRestaurant({{ $data['id'] }});" --}}
                 <div class="item_version_2">
-                    <a href="{{ route('user.home.restaurants') }}">
+                    <a href="{{ route('user.home.restaurants.category_wise',$data['id']) }}">
                         <figure>
                             <!--<span>98</span>-->
                             <img  src="{{ asset('storage/app/public/category') }}/{{ $data['image'] }}"
@@ -91,7 +93,7 @@
                         <p>OUR TOP RATED RESTAURANT.</p>
                         <a href="{{route('user.home.restaurants')}}">View All &rarr;</a>
                     </div>
-                    @foreach ($restaurants as $restaurant)
+                    @forelse ($restaurants as $restaurant)
                         <div class="col-lg-6">
                             <div class="list_home">
                                 <ul>
@@ -118,7 +120,17 @@
                                 </ul>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                    <div class="col-12">
+                        <div class="list_home">
+                            <ul>
+                                <li class="text-center h4">
+                                    No Restaurant found in your selected area.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    @endforelse
                 </div>
             </div>
 

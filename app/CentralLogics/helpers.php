@@ -704,7 +704,7 @@ class Helpers
         $currency_symbol_position = BusinessSetting::where(['key' => 'currency_symbol_position'])->first()->value;
         // var_dump(self::currency_symbol());
         // exit;
-        return $currency_symbol_position == 'right' ? number_format($value, config('round_up_to_digit')) . ' ' . self::currency_symbol($res_id) : self::currency_symbol($res_id) . ' ' . number_format($value, config('round_up_to_digit'));
+        return $currency_symbol_position == 'right' ? number_format($value, config('round_up_to_digit')) . '' . self::currency_symbol($res_id) : self::currency_symbol($res_id) . ' ' . number_format($value, config('round_up_to_digit'));
     }
     public static function send_push_notif_to_device($fcm_token, $data)
     {
@@ -1320,6 +1320,13 @@ class Helpers
         }
         return auth('vendor')->user()->restaurants[0]->id;
     }
+    public static function get_restaurant_id_for_user()
+    {
+        if (auth()->check()) {
+            return auth()->user()->restaurant->id;
+        }
+        return auth()->user()->restaurants[0]->id;
+    }
 
     public static function get_vendor_id()
     {
@@ -1347,6 +1354,13 @@ class Helpers
             return auth('vendor')->user();
         } else if (auth('vendor_employee')->check()) {
             return auth('vendor_employee')->user();
+        }
+        return 0;
+    }
+    public static function get_loggedin_for_user()
+    {
+        if (auth()->check()) {
+            return auth()->user();
         }
         return 0;
     }

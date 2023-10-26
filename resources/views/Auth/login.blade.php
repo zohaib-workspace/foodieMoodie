@@ -44,6 +44,7 @@
 				</div>
             <div class="divider"><span>Or</span></div>
 			<form autocomplete="off" action="{{route('user.user_login')}}" method="POST">
+                @csrf
 				@if(Session::has('success'))
 				<div class="alert alert-success">{{Session::get('success')}}</div>
                 @endif
@@ -52,7 +53,6 @@
                 <div class="alert alert-danger">{{Session::get('fail')}}</div>
                 @endif
 
-                @csrf
 				<div class="form-group">
 					<input class="form-control" type="email" placeholder="Email" name="email" value="">
 					<span class="text-danger">@error('email') {{$message}} @enderror</span>
