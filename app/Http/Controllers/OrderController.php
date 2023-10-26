@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Brian2694\Toastr\Facades\Toastr;
 
 class OrderController extends Controller
 {
@@ -61,6 +62,35 @@ class OrderController extends Controller
     public function confirm_order()
     {
         return view('home.confirm-order');
+    }
+    public function details(Request $request,$id)
+    {
+        // return auth()->user();
+        
+        if(Auth()->check())
+        {
+
+            $order = Order::with(['details','restaurant', 'customer'=>function($query){
+                return $query->withCount('orders');
+            },'delivery_man'=>function($query){
+                return $query->withCount('orders');
+            }, 'deals' => function($q){
+                return $q->with('deal_data');
+            }])->findOrFail($id);
+            // ->where(['id' => $id, 'restaurant_id' => Helpers::get_restaurant_id_for_user()])
+            if (isset($order)) {
+                return view('home.orders.order_detail', compact('order'));
+            } else {
+                Toastr::info('No more orders!');
+                return back();
+            }
+        }
+        return redirect()->route('user.login');
+    }
+    public function generateInvoice($id)
+    {
+        $order = Order::where(['id' => $id, 'restaurant_id' => Helpers::get_restaurant_id_for_user()])->first();
+        return view('vendor-views.order.invoice', compact('order'));
     }
 
     public function place_order(Request $request)

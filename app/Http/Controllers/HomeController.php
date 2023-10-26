@@ -114,7 +114,13 @@ class HomeController extends Controller
         })->orderBy('priority', 'desc')->get();
 
         $data['categories'] = Helpers::category_data_formatting($categories, true);
-        $data['restaurants'] = Restaurant::all();
+        $zone_id = session()->get('zone_id');
+        if ($zone_id) {
+            $data['restaurants'] = Restaurant::whereIn('zone_id', $zone_id)->get();
+        } else {
+
+            $data['restaurants'] = Restaurant::all();
+        }
         return view('home.index', $data);
     }
 

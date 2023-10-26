@@ -213,6 +213,7 @@ class OrderController extends Controller
     public function place_order(Request $request)
     {
         // return Auth()->user();
+        // return $request;
         $validator = Validator::make($request->all(), [
             'order_amount' => 'required',
             'payment_method' => 'required|in:cash_on_delivery,digital_payment,wallet',
@@ -222,12 +223,13 @@ class OrderController extends Controller
             'address' => 'required_if:order_type,delivery',
             'longitude' => 'required_if:order_type,delivery',
             'latitude' => 'required_if:order_type,delivery',
-            'dm_tips' => 'nullable|numeric'
+            'dm_tips' => 'nullable|numeric',
         ]);
-
+        
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
+        // return $request;
 
         if ($request->payment_method == 'wallet' && Helpers::get_business_settings('wallet_status', false) != 1) {
             return _response(0, translate('messages.customer_wallet_disable_warning'), [
@@ -264,14 +266,14 @@ class OrderController extends Controller
                 ]
             ], 406);
         }
-
-        if ($restaurant->open == false) {
-            return _response(0, translate('messages.restaurant_is_closed_at_order_time'), [
-                'errors' => [
-                    ['code' => 'open', 'message' => translate('messages.restaurant_is_closed_at_order_time')]
-                ]
-            ], 406);
-        }
+        // comment just for order place
+        // if ($restaurant->open == false) {
+        //     return _response(0, translate('messages.restaurant_is_closed_at_order_time'), [
+        //         'errors' => [
+        //             ['code' => 'open', 'message' => translate('messages.restaurant_is_closed_at_order_time')]
+        //         ]
+        //     ], 406);
+        // }
 
         if ($request['coupon_code']) {
             $coupon = Coupon::active()->where(['code' => $request['coupon_code']])->first();
@@ -403,91 +405,94 @@ class OrderController extends Controller
         } else {
             $cart_list = $request['cart'];
         }
+        if($cart_list)
+        {
 
-
-        foreach ($cart_list as $c) {
-            // $c = get_object_vars($c);
-            // var_dump(isset($temp['item_campaign_id']));exit;
-            // if(isset())
-            if (isset($c['item_campaign_id']) && $c['item_campaign_id'] != null) {
-                $product = ItemCampaign::active()->find($c['item_campaign_id']);
-                if ($product) {
-                    if (count(json_decode($product['variations'], true)) > 0) {
-                        $price = Helpers::variation_price($product, json_encode($c['variation']));
+            foreach ($cart_list as $c) {
+                // $c = get_object_vars($c);
+                // var_dump(isset($temp['item_campaign_id']));exit;
+                // if(isset())
+                if (isset($c['item_campaign_id']) && $c['item_campaign_id'] != null) {
+                    $product = ItemCampaign::active()->find($c['item_campaign_id']);
+                    if ($product) {
+                        if (count(json_decode($product['variations'], true)) > 0) {
+                            $price = Helpers::variation_price($product, json_encode($c['variation']));
+                        } else {
+                            $price = $product['price'];
+                        }
+                        $product->tax = $restaurant->tax;
+                        $product = Helpers::product_data_formatting($product, false, false, app()->getLocale());
+                        $addon_data = Helpers::calculate_addon_price(\App\Models\AddOn::whereIn('id', $c['add_on_ids'])->get(), $c['add_on_qtys']);
+                        $or_d = [
+                            'food_id' => null,
+                            'item_campaign_id' => $c['item_campaign_id'],
+                            'food_details' => json_encode($product),
+                            'quantity' => $c['quantity'],
+                            'price' => $price,
+                            'tax_amount' => Helpers::tax_calculate($product, $price),
+                            'discount_on_food' => Helpers::product_discount_calculate($product, $price, $restaurant),
+                            'discount_type' => 'discount_on_product',
+                            'variant' => json_encode($c['variant']),
+                            'variation' => json_encode($c['variation']),
+                            'add_ons' => json_encode($addon_data['addons']),
+                            'total_add_on_price' => $addon_data['total_add_on_price'],
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ];
+                        $order_details[] = $or_d;
+                        $total_addon_price += $or_d['total_add_on_price'];
+                        $product_price += $price * $or_d['quantity'];
+                        $restaurant_discount_amount += $or_d['discount_on_food'] * $or_d['quantity'];
                     } else {
-                        $price = $product['price'];
+                        return _response(0, translate('messages.product_unavailable_warning'), [
+                            'errors' => [
+                                ['code' => 'campaign', 'message' => translate('messages.product_unavailable_warning')]
+                            ]
+                        ], 401);
                     }
-                    $product->tax = $restaurant->tax;
-                    $product = Helpers::product_data_formatting($product, false, false, app()->getLocale());
-                    $addon_data = Helpers::calculate_addon_price(\App\Models\AddOn::whereIn('id', $c['add_on_ids'])->get(), $c['add_on_qtys']);
-                    $or_d = [
-                        'food_id' => null,
-                        'item_campaign_id' => $c['item_campaign_id'],
-                        'food_details' => json_encode($product),
-                        'quantity' => $c['quantity'],
-                        'price' => $price,
-                        'tax_amount' => Helpers::tax_calculate($product, $price),
-                        'discount_on_food' => Helpers::product_discount_calculate($product, $price, $restaurant),
-                        'discount_type' => 'discount_on_product',
-                        'variant' => json_encode($c['variant']),
-                        'variation' => json_encode($c['variation']),
-                        'add_ons' => json_encode($addon_data['addons']),
-                        'total_add_on_price' => $addon_data['total_add_on_price'],
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ];
-                    $order_details[] = $or_d;
-                    $total_addon_price += $or_d['total_add_on_price'];
-                    $product_price += $price * $or_d['quantity'];
-                    $restaurant_discount_amount += $or_d['discount_on_food'] * $or_d['quantity'];
                 } else {
-                    return _response(0, translate('messages.product_unavailable_warning'), [
-                        'errors' => [
-                            ['code' => 'campaign', 'message' => translate('messages.product_unavailable_warning')]
-                        ]
-                    ], 401);
-                }
-            } else {
-                $product = Food::active()->find($c['food_id']);
-                if ($product) {
-                    if (count(json_decode($product['variations'], true)) > 0) {
-                        $price = Helpers::variation_price($product, json_encode($c['variation']));
+                    $product = Food::active()->find($c['food_id']);
+                    if ($product) {
+                        if (count(json_decode($product['variations'], true)) > 0) {
+                            $price = Helpers::variation_price($product, json_encode($c['variation']));
+                        } else {
+                            $price = $product['price'];
+                        }
+    
+                        $product->tax = $restaurant->tax;
+                        $product = Helpers::product_data_formatting($product, false, false, app()->getLocale());
+                        $addon_data = Helpers::calculate_addon_price(\App\Models\AddOn::whereIn('id', $c['add_on_ids']??[])->get(), $c['add_on_qtys']??[]);
+                        $or_d = [
+                            'food_id' => $c['food_id'],
+                            'item_campaign_id' => null,
+                            'food_details' => json_encode($product),
+                            'quantity' => $c['quantity'],
+                            'price' => round($price, config('round_up_to_digit')),
+                            'tax_amount' => round(Helpers::tax_calculate($product, $price), config('round_up_to_digit')),
+                            'discount_on_food' => Helpers::product_discount_calculate($product, $price, $restaurant),
+                            'discount_type' => 'discount_on_product',
+                            'variant' => json_encode($c['variant']),
+                            'variation' => json_encode($c['variation']),
+                            'add_ons' => json_encode($addon_data['addons']),
+                            'total_add_on_price' => round($addon_data['total_add_on_price'], config('round_up_to_digit')),
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ];
+                        $total_addon_price += $or_d['total_add_on_price'];
+                        $product_price += $price * $or_d['quantity'];
+                        $restaurant_discount_amount += $or_d['discount_on_food'] * $or_d['quantity'];
+                        $order_details[] = $or_d;
                     } else {
-                        $price = $product['price'];
+                        return _response(0, translate('messages.product_unavailable_warning'), [
+                            'errors' => [
+                                ['code' => 'food', 'message' => translate('messages.product_unavailable_warning')]
+                            ]
+                        ], 401);
                     }
-
-                    $product->tax = $restaurant->tax;
-                    $product = Helpers::product_data_formatting($product, false, false, app()->getLocale());
-                    $addon_data = Helpers::calculate_addon_price(\App\Models\AddOn::whereIn('id', $c['add_on_ids'])->get(), $c['add_on_qtys']);
-                    $or_d = [
-                        'food_id' => $c['food_id'],
-                        'item_campaign_id' => null,
-                        'food_details' => json_encode($product),
-                        'quantity' => $c['quantity'],
-                        'price' => round($price, config('round_up_to_digit')),
-                        'tax_amount' => round(Helpers::tax_calculate($product, $price), config('round_up_to_digit')),
-                        'discount_on_food' => Helpers::product_discount_calculate($product, $price, $restaurant),
-                        'discount_type' => 'discount_on_product',
-                        'variant' => json_encode($c['variant']),
-                        'variation' => json_encode($c['variation']),
-                        'add_ons' => json_encode($addon_data['addons']),
-                        'total_add_on_price' => round($addon_data['total_add_on_price'], config('round_up_to_digit')),
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ];
-                    $total_addon_price += $or_d['total_add_on_price'];
-                    $product_price += $price * $or_d['quantity'];
-                    $restaurant_discount_amount += $or_d['discount_on_food'] * $or_d['quantity'];
-                    $order_details[] = $or_d;
-                } else {
-                    return _response(0, translate('messages.product_unavailable_warning'), [
-                        'errors' => [
-                            ['code' => 'food', 'message' => translate('messages.product_unavailable_warning')]
-                        ]
-                    ], 401);
                 }
             }
         }
+        
 
         /*Deal Order (start)*/
 
@@ -499,27 +504,29 @@ class OrderController extends Controller
             $deals_list = $request['deals'];
         }
         $deal_price = 0;
-        if($isDeal)
+        if($request['deals'])
         {
-        foreach ($deals_list as $d) {
 
-            $quantity = intval($d["quantity"]);
-            $price = intval($d["total_price"]);
-
-            $deal_price += $quantity * $price;
-
-            $deal_order = DealOrderDetail::create([
-                "order_id" => $order->id,
-                "deal_id" => $d["deal_id"],
-                "quantity" => $d["quantity"],
-                "price" => $d["total_price"],
-                "comment" => $d["comment"],
-                "tax_amount" => $d["tax_amount"],
-                "required_products" => json_encode($d["required_products"]),
-                "optional_products" => json_encode($d["optional_products"])
-            ]);
+            foreach ($deals_list as $d) {
+    
+                $quantity = intval($d["quantity"]);
+                $price = intval($d["total_price"]);
+    
+                $deal_price += $quantity * $price;
+    
+                $deal_order = DealOrderDetail::create([
+                    "order_id" => $order->id,
+                    "deal_id" => $d["deal_id"],
+                    "quantity" => $d["quantity"],
+                    "price" => $d["total_price"],
+                    "comment" => $d["comment"]??'',
+                    "tax_amount" => $d["tax_amount"],
+                    "required_products" => json_encode($d["required_products"]??[]),
+                    "optional_products" => json_encode($d["optional_products"]??[])
+                ]);
+            }
         }
-        }
+        
 
         $restaurant_discount = Helpers::get_restaurant_discount($restaurant);
         if (isset($restaurant_discount)) {
@@ -612,6 +619,7 @@ class OrderController extends Controller
                 info($ex);
             }
             return _response(1, translate('messages.order_placed_successfully'), [
+                'order' => $order,
                 'order_id' => $order->id,
                 'total_ammount' => $total_price + $order->delivery_charge + $total_tax_amount
             ], 200);
