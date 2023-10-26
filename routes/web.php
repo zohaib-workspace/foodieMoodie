@@ -21,6 +21,8 @@ use App\Http\Middleware\AlreadyLoggedIn;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+///khizr again
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -270,7 +272,7 @@ Route::group(['prefix' => 'user', 'as' => 'user.'], function () {
 
 
 
-// Duplicate routes of apis here just for to fetch Auth 
+// Duplicate routes of apis here just for to fetch Auth
 Route::group(['middleware' => 'auth'], function () {
     Route::post('order_place_web', [OrderController::class, 'place_order']);
 });
