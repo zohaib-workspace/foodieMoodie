@@ -1,5 +1,7 @@
 <?php
 
+//////khizr
+
 use Illuminate\Support\Facades\Route;
 
 

@@ -21,6 +21,8 @@ use App\Http\Middleware\AlreadyLoggedIn;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+//khizr code
+
 ///khizr again
 
 /*
